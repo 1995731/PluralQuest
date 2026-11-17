@@ -1,0 +1,5 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');const M=require('../plural-quest/addie-model.js');
+test('both assessments cover each type with two questions and distinct prompts',()=>{for(const mode of ['pre','post'])for(let t=0;t<3;t++)assert.equal(M[mode].filter(q=>q.t===t).length,2);assert.ok(M.pre.every(q=>!M.post.some(p=>p.q===q.q)));});
+test('full score reaches target without support recommendation',()=>{const r=M.summarize(M.pre,M.pre.map(q=>q.a));assert.equal(r.score,6);assert.equal(r.mastered,true);assert.equal(M.weakType(r),null);});
+test('five meets target, four needs review, weak type chosen from errors',()=>{let a=M.post.map(q=>q.a);a[1]=(a[1]+1)%3;let r=M.summarize(M.post,a);assert.equal(r.mastered,true);assert.equal(M.weakType(r),1);a[4]=(a[4]+1)%3;r=M.summarize(M.post,a);assert.equal(r.mastered,false);assert.equal(r.skills[1].correct,0);});
+test('incomplete and invalid answers are rejected',()=>{assert.throws(()=>M.summarize(M.pre,[]));assert.throws(()=>M.summarize(M.pre,[9,0,0,0,0,0]));});
